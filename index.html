@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEONI IPTV - Fast Engine</title>
+    <title>زيوني</title>
     <!-- Google Fonts & FontAwesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- HLS.js Library for M3U8 Live Stream Playback -->
+    <!-- HLS.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
         :root {
-            --bg-color: #0f121c;
-            --panel-bg: rgba(22, 27, 46, 0.7);
+            --bg-color: #0b0d14;
+            --panel-bg: rgba(20, 25, 40, 0.7);
+            --sidebar-bg: #0d101d;
             --accent-cyan: #00f2fe;
             --accent-green: #00e676;
             --accent-pink: #ff2e93;
-            --accent-amber: #ffab00;
             --text-light: #f1f5f9;
             --text-dim: #94a3b8;
-            --border-glow: rgba(0, 242, 254, 0.3);
+            --border-glow: rgba(0, 242, 254, 0.25);
         }
 
         * {
@@ -30,6 +30,7 @@
             padding: 0;
             font-family: 'Tajawal', sans-serif;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -41,35 +42,36 @@
             display: flex;
         }
 
-        /* Sidebar Navigation */
+        /* Main Sidebar Navigation */
         .sidebar {
             width: 80px;
             height: 100vh;
-            background: rgba(15, 18, 28, 0.95);
+            background: var(--sidebar-bg);
             border-left: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px 0;
             z-index: 100;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.2s ease;
+            flex-shrink: 0;
         }
 
         .sidebar:hover {
-            width: 220px;
+            width: 180px;
         }
 
         .brand {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 900;
             color: var(--accent-cyan);
-            margin-bottom: 40px;
+            margin-bottom: 35px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             width: 100%;
             padding: 0 25px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .nav-items {
@@ -80,12 +82,12 @@
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 18px 25px;
+            padding: 16px 25px;
             color: var(--text-dim);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: color 0.2s, background 0.2s;
             white-space: nowrap;
-            gap: 20px;
+            gap: 18px;
         }
 
         .nav-item i {
@@ -105,13 +107,66 @@
 
         .nav-item:hover, .nav-item.active {
             color: #fff;
-            background: linear-gradient(90deg, rgba(0, 242, 254, 0.15) 0%, rgba(0, 0, 0, 0) 100%);
+            background: rgba(0, 242, 254, 0.1);
             border-right: 4px solid var(--accent-cyan);
         }
 
         .nav-item.active i {
             color: var(--accent-cyan);
-            text-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        /* Categories Sub-Sidebar */
+        .categories-sidebar {
+            width: 230px;
+            height: 100vh;
+            background: rgba(15, 18, 30, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .categories-sidebar h3 {
+            font-size: 0.95rem;
+            color: var(--accent-cyan);
+            margin-bottom: 15px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .category-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-item:hover, .category-item.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .category-item.active {
+            border-right: 3px solid var(--accent-cyan);
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent-cyan);
+            font-weight: bold;
         }
 
         /* Workspace Structure */
@@ -119,30 +174,16 @@
             flex: 1;
             height: 100vh;
             overflow-y: auto;
-            padding: 30px;
+            padding: 25px 30px;
             position: relative;
+            scroll-behavior: smooth;
         }
 
-        .view-section {
-            display: none;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .view-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Top Search and Stats Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .search-box {
@@ -158,12 +199,11 @@
             border-radius: 30px;
             color: #fff;
             outline: none;
-            transition: 0.3s;
+            transition: border-color 0.2s;
         }
 
         .search-box input:focus {
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px var(--border-glow);
         }
 
         .search-box i {
@@ -177,9 +217,9 @@
         .server-status {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             background: var(--panel-bg);
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -189,51 +229,51 @@
             height: 10px;
             background-color: var(--accent-green);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-green);
         }
 
         /* Content Display Grids */
         .media-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 18px;
+            margin-top: 15px;
+            padding-bottom: 40px;
         }
 
         .media-card {
             background: var(--panel-bg);
             border-radius: 12px;
             overflow: hidden;
-            transition: all 0.3s;
+            transition: transform 0.15s ease, border-color 0.15s ease;
             cursor: pointer;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            contain: content;
         }
 
         .media-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 0 20px var(--border-glow);
+            transform: translateY(-4px);
             border-color: var(--accent-cyan);
         }
 
         .card-img-holder {
             width: 100%;
-            height: 180px;
-            background: #080a10;
+            height: 190px;
+            background: #06080e;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
         .media-card img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            padding: 10px;
+            padding: 8px;
         }
 
-        /* fallback icon if Xtream logo fails to load */
         .no-logo-fallback {
             display: flex;
             flex-direction: column;
@@ -244,13 +284,13 @@
         }
 
         .no-logo-fallback i {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: var(--accent-cyan);
         }
 
         .media-info {
-            padding: 12px;
-            background: rgba(15, 18, 28, 0.9);
+            padding: 10px 12px;
+            background: rgba(12, 15, 25, 0.95);
         }
 
         .media-title {
@@ -263,35 +303,35 @@
 
         .media-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.85);
             color: var(--accent-cyan);
-            font-size: 0.7rem;
-            padding: 3px 8px;
+            font-size: 0.68rem;
+            padding: 3px 7px;
             border-radius: 6px;
             border: 1px solid var(--border-glow);
             z-index: 2;
         }
 
-        /* Loading Spinner */
+        /* Loader */
         .loader-container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 300px;
-            gap: 20px;
+            height: 350px;
+            gap: 15px;
             grid-column: 1 / -1;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.1);
-            border-top: 5px solid var(--accent-cyan);
+            width: 45px;
+            height: 45px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--accent-cyan);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
@@ -299,7 +339,187 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Video Player Screen */
+        /* Series Modal Layout */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 7, 12, 0.88);
+            backdrop-filter: blur(8px);
+            z-index: 800;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: #0d111e;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1000px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 35px rgba(0,0,0,0.9);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(20, 25, 40, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .modal-poster {
+            width: 110px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        .modal-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            padding-left: 30px;
+        }
+
+        .modal-details h2 {
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        .modal-details p {
+            font-size: 0.88rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--accent-pink);
+            color: #fff;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            z-index: 10;
+        }
+
+        .modal-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .seasons-sidebar {
+            width: 220px;
+            background: rgba(10, 13, 22, 0.8);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .seasons-sidebar h4 {
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .season-btn {
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .season-btn:hover, .season-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            color: #fff;
+            border-right: 3px solid var(--accent-cyan);
+        }
+
+        .episodes-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            align-content: start;
+        }
+
+        .episode-card {
+            background: rgba(20, 25, 40, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .episode-card:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 242, 254, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .episode-card i {
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+
+        .episode-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .episode-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Player Overlay */
         .player-overlay {
             position: fixed;
             top: 0;
@@ -326,90 +546,99 @@
             background: linear-gradient(135deg, var(--accent-cyan), #005bea);
             border: none;
             color: #fff;
-            padding: 10px 20px;
+            padding: 10px 22px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
+            transition: opacity 0.2s;
         }
 
         .btn-action:hover {
-            box-shadow: 0 0 15px var(--border-glow);
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Bar -->
+    <!-- Main Navigation Sidebar -->
     <div class="sidebar">
         <div class="brand">
             <i class="fa-solid fa-play"></i>
-            <span>ZEONI IPTV</span>
+            <span>زيوني</span>
         </div>
         <ul class="nav-items">
-            <li class="nav-item active" onclick="switchTab('live')">
+            <li class="nav-item active" id="tab-live" onclick="switchMainTab('live')">
                 <i class="fa-solid fa-tv"></i>
-                <span>القنوات الحية</span>
+                <span>البث المباشر</span>
             </li>
-            <li class="nav-item" onclick="switchTab('movies')">
+            <li class="nav-item" id="tab-movies" onclick="switchMainTab('movies')">
                 <i class="fa-solid fa-film"></i>
-                <span>الأفلام (VOD)</span>
+                <span>الأفلام</span>
             </li>
-            <li class="nav-item" onclick="switchTab('series')">
+            <li class="nav-item" id="tab-series" onclick="switchMainTab('series')">
                 <i class="fa-solid fa-layer-group"></i>
                 <span>المسلسلات</span>
             </li>
         </ul>
     </div>
 
+    <!-- Secondary Category Sidebar -->
+    <div class="categories-sidebar">
+        <h3 id="categoryHeader"><i class="fa-solid fa-list-ul"></i> الأقسام</h3>
+        <ul class="category-list" id="categoryList">
+            <li class="category-item active">جاري التحميل...</li>
+        </ul>
+    </div>
+
     <!-- Main Workspace -->
-    <div class="main-workspace">
+    <div class="main-workspace" id="workspace">
         <div class="top-bar">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" onkeyup="filterContent()" placeholder="بحث في كافة القنوات والأفلام...">
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="بحث في المحتوى...">
             </div>
             <div class="server-status">
                 <div class="status-dot"></div>
-                <span id="statusText" style="font-size: 0.85rem; color: var(--text-dim);">جاري الاتصال بالسيرفر...</span>
+                <span id="statusText" style="font-size: 0.85rem; color: var(--text-dim);">جاري الاتصال بـ زيوني...</span>
             </div>
         </div>
 
-        <!-- Section 1: Live Channels -->
-        <div id="live" class="view-section active">
-            <h2 style="margin-bottom: 10px;">القنوات الفضائية المباشرة</h2>
-            <div class="media-grid" id="liveGrid">
-                <div class="loader-container">
-                    <div class="spinner"></div>
-                    <p style="color: var(--text-dim);">جاري سحب قنوات وتصاميم Xtream...</p>
+        <h2 id="sectionTitle" style="margin-bottom: 15px; font-weight: 700;">جميع القنوات</h2>
+        
+        <div class="media-grid" id="mainGrid">
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <p style="color: var(--text-dim);">جاري التحميل والربط مع زيوني...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Series Detail Modal Window -->
+    <div class="modal-overlay" id="seriesModal">
+        <div class="modal-container">
+            <button class="modal-close-btn" onclick="closeSeriesModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <img src="" id="modalPoster" class="modal-poster" alt="poster" onerror="showFallbackLogo(this)">
+                <div class="modal-details">
+                    <h2 id="modalTitle">اسم المسلسل</h2>
+                    <p id="modalPlot">جاري تحميل قصة ونبذة المسلسل...</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Section 2: Movies (VOD) -->
-        <div id="movies" class="view-section">
-            <h2 style="margin-bottom: 10px;">مكتبة الأفلام</h2>
-            <div class="media-grid" id="moviesGrid">
-                <div class="loader-container">
-                    <div class="spinner"></div>
-                    <p style="color: var(--text-dim);">جاري تحميل الأفلام...</p>
+            <div class="modal-body">
+                <div class="seasons-sidebar">
+                    <h4><i class="fa-solid fa-layer-group"></i> المواسم والأجزاء</h4>
+                    <div id="seasonsList">
+                        <!-- Seasons Dynamic List -->
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Section 3: Series -->
-        <div id="series" class="view-section">
-            <h2 style="margin-bottom: 10px;">مكتبة المسلسلات</h2>
-            <div class="media-grid" id="seriesGrid">
-                <div class="loader-container">
-                    <div class="spinner"></div>
-                    <p style="color: var(--text-dim);">جاري تحميل المسلسلات...</p>
+                <div class="episodes-container" id="episodesList">
+                    <!-- Episodes Dynamic Grid -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Video Player Screen -->
+    <!-- Video Player Overlay -->
     <div class="player-overlay" id="playerOverlay">
         <div style="position: absolute; top: 20px; right: 20px; z-index: 1001;">
             <button class="btn-action" style="background: var(--accent-pink);" onclick="closePlayer()">إغلاق المشغل <i class="fa-solid fa-xmark"></i></button>
@@ -418,148 +647,266 @@
     </div>
 
     <script>
-        // Xtream Server Credentials
         const SERVER_CONFIG = {
             host: "http://1.amlive.space",
             user: "2944297191",
             pass: "5284535677"
         };
 
-        let cacheData = {
-            live: [],
-            movies: [],
-            series: []
-        };
-
-        let currentActiveTab = 'live';
+        let rawData = { live: [], movies: [], series: [] };
+        let categoriesData = { live: [], movies: [], series: [] };
+        
+        let currentTab = 'live';
+        let currentCategoryId = 'all';
+        let filteredItems = [];
+        let loadedCount = 0;
+        const PAGE_SIZE = 60;
         let hlsEngine = null;
+        let searchDebounce = null;
 
-        function switchTab(tabId) {
-            currentActiveTab = tabId;
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-            document.getElementById('searchInput').value = '';
-            filterContent();
-        }
-
-        async function fetchXtreamCategory(action) {
-            const url = `${SERVER_CONFIG.host}/player_api.php?username=${SERVER_CONFIG.user}&password=${SERVER_CONFIG.pass}&action=${action}`;
+        async function fetchXtream(action, param = "") {
+            const url = `${SERVER_CONFIG.host}/player_api.php?username=${SERVER_CONFIG.user}&password=${SERVER_CONFIG.pass}&action=${action}${param}`;
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('فشل جلب البيانات');
-                return await response.json();
+                const res = await fetch(url);
+                if (!res.ok) throw new Error();
+                return await res.json();
             } catch (err) {
-                console.error(`خطأ أثناء جلب ${action}:`, err);
-                return [];
+                return null;
             }
         }
 
-        async function loadAllServerData() {
-            document.getElementById('statusText').innerText = "جاري الاتصال وسحب البيانات...";
+        async function initApp() {
+            document.getElementById('statusText').innerText = "جاري الاتصال بـ زيوني...";
 
-            // 1. Fetch Live Streams
-            const liveStreams = await fetchXtreamCategory('get_live_streams');
-            cacheData.live = liveStreams;
-            renderLiveGrid(liveStreams);
+            const [liveCats, movieCats, seriesCats, liveStreams, movieStreams, seriesStreams] = await Promise.all([
+                fetchXtream('get_live_categories'),
+                fetchXtream('get_vod_categories'),
+                fetchXtream('get_series_categories'),
+                fetchXtream('get_live_streams'),
+                fetchXtream('get_vod_streams'),
+                fetchXtream('get_series')
+            ]);
 
-            // 2. Fetch Movies (VOD)
-            const movieStreams = await fetchXtreamCategory('get_vod_streams');
-            cacheData.movies = movieStreams;
-            renderMoviesGrid(movieStreams);
+            categoriesData.live = liveCats || [];
+            categoriesData.movies = movieCats || [];
+            categoriesData.series = seriesCats || [];
 
-            // 3. Fetch Series
-            const seriesStreams = await fetchXtreamCategory('get_series');
-            cacheData.series = seriesStreams;
-            renderSeriesGrid(seriesStreams);
+            rawData.live = liveStreams || [];
+            rawData.movies = movieStreams || [];
+            rawData.series = seriesStreams || [];
 
-            document.getElementById('statusText').innerText = `ZEONI متصل | تم تحميل ${liveStreams.length} قناة`;
-        }
-
-        // Render Live Channels with Xtream Logo Integration
-        function renderLiveGrid(items) {
-            const grid = document.getElementById('liveGrid');
-            if(!items || items.length === 0) {
-                grid.innerHTML = `<p style="color: var(--text-dim); grid-column: 1 / -1;">لا توجد قنوات متاحة.</p>`;
-                return;
-            }
-
-            grid.innerHTML = items.slice(0, 150).map(item => {
-                const iconUrl = item.stream_icon ? item.stream_icon : '';
-                return `
-                <div class="media-card" onclick="playStream('${SERVER_CONFIG.host}/live/${SERVER_CONFIG.user}/${SERVER_CONFIG.pass}/${item.stream_id}.m3u8')">
-                    <span class="media-badge">مباشر</span>
-                    <div class="card-img-holder">
-                        ${iconUrl ? `<img src="${iconUrl}" onerror="showFallbackLogo(this)" alt="logo">` : `<div class="no-logo-fallback"><i class="fa-solid fa-tv"></i></div>`}
-                    </div>
-                    <div class="media-info">
-                        <div class="media-title">${item.name}</div>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        function showFallbackLogo(img) {
-            img.parentElement.innerHTML = `<div class="no-logo-fallback"><i class="fa-solid fa-tv"></i></div>`;
-        }
-
-        // Render Movies Grid
-        function renderMoviesGrid(items) {
-            const grid = document.getElementById('moviesGrid');
-            if(!items || items.length === 0) {
-                grid.innerHTML = `<p style="color: var(--text-dim); grid-column: 1 / -1;">لا توجد أفلام حالياً.</p>`;
-                return;
-            }
-
-            grid.innerHTML = items.slice(0, 100).map(item => `
-                <div class="media-card" onclick="playStream('${SERVER_CONFIG.host}/movie/${SERVER_CONFIG.user}/${SERVER_CONFIG.pass}/${item.stream_id}.${item.container_extension || 'mp4'}')">
-                    <span class="media-badge" style="color: var(--accent-green)">${item.rating || 'VOD'}</span>
-                    <div class="card-img-holder">
-                        <img src="${item.stream_icon || ''}" onerror="showFallbackLogo(this)" alt="poster">
-                    </div>
-                    <div class="media-info">
-                        <div class="media-title">${item.name}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Render Series Grid
-        function renderSeriesGrid(items) {
-            const grid = document.getElementById('seriesGrid');
-            if(!items || items.length === 0) {
-                grid.innerHTML = `<p style="color: var(--text-dim); grid-column: 1 / -1;">لا توجد مسلسلات حالياً.</p>`;
-                return;
-            }
-
-            grid.innerHTML = items.slice(0, 100).map(item => `
-                <div class="media-card" onclick="alert('مسلسل: ${item.name}\\nجاري تجهيز الحلقات...')">
-                    <span class="media-badge" style="color: var(--accent-pink)">مسلسل</span>
-                    <div class="card-img-holder">
-                        <img src="${item.cover || ''}" onerror="showFallbackLogo(this)" alt="poster">
-                    </div>
-                    <div class="media-info">
-                        <div class="media-title">${item.name}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Search Filter Engine
-        function filterContent() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const currentData = cacheData[currentActiveTab] || [];
+            document.getElementById('statusText').innerText = `متصل | القنوات: ${rawData.live.length} | المسلسلات: ${rawData.series.length}`;
             
-            const filtered = currentData.filter(item => item.name && item.name.toLowerCase().includes(query));
-
-            if (currentActiveTab === 'live') renderLiveGrid(filtered);
-            if (currentActiveTab === 'movies') renderMoviesGrid(filtered);
-            if (currentActiveTab === 'series') renderSeriesGrid(filtered);
+            setupScrollListener();
+            switchMainTab('live');
         }
 
-        // Playback Handler
+        function switchMainTab(tab) {
+            currentTab = tab;
+            currentCategoryId = 'all';
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            document.getElementById('searchInput').value = '';
+            
+            renderCategories();
+            prepareAndRenderContent();
+        }
+
+        function renderCategories() {
+            const catListContainer = document.getElementById('categoryList');
+            const cats = categoriesData[currentTab] || [];
+
+            let html = `<li class="category-item ${currentCategoryId === 'all' ? 'active' : ''}" onclick="selectCategory('all', 'الجميع', this)">الكل (${rawData[currentTab].length})</li>`;
+            
+            cats.forEach(cat => {
+                html += `
+                    <li class="category-item ${currentCategoryId == cat.category_id ? 'active' : ''}" 
+                        onclick="selectCategory('${cat.category_id}', '${cat.category_name}', this)">
+                        ${cat.category_name}
+                    </li>
+                `;
+            });
+
+            catListContainer.innerHTML = html;
+        }
+
+        function selectCategory(catId, catName, element) {
+            currentCategoryId = catId;
+            document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+            
+            document.getElementById('sectionTitle').innerText = catName === 'الجميع' ? 'جميع العناصر' : catName;
+            prepareAndRenderContent();
+        }
+
+        function prepareAndRenderContent() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            let items = rawData[currentTab] || [];
+
+            if (currentCategoryId !== 'all') {
+                items = items.filter(item => item.category_id == currentCategoryId);
+            }
+
+            if (searchVal) {
+                items = items.filter(item => item.name && item.name.toLowerCase().includes(searchVal));
+            }
+
+            filteredItems = items;
+            loadedCount = 0;
+            document.getElementById('mainGrid').innerHTML = '';
+
+            if (filteredItems.length === 0) {
+                document.getElementById('mainGrid').innerHTML = `<p style="color: var(--text-dim); grid-column: 1 / -1; text-align: center; padding: 40px;">لا يوجد محتوى لعرضه.</p>`;
+                return;
+            }
+
+            appendNextBatch();
+        }
+
+        function appendNextBatch() {
+            if (loadedCount >= filteredItems.length) return;
+
+            const grid = document.getElementById('mainGrid');
+            const nextBatch = filteredItems.slice(loadedCount, loadedCount + PAGE_SIZE);
+            
+            const fragment = document.createDocumentFragment();
+
+            nextBatch.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+
+                let icon = item.stream_icon || item.cover || '';
+                let title = item.name || 'بدون عنوان';
+
+                let playAction = () => {};
+                if (currentTab === 'live') {
+                    const streamUrl = `${SERVER_CONFIG.host}/live/${SERVER_CONFIG.user}/${SERVER_CONFIG.pass}/${item.stream_id}.m3u8`;
+                    playAction = () => playStream(streamUrl);
+                } else if (currentTab === 'movies') {
+                    const ext = item.container_extension || 'mp4';
+                    const streamUrl = `${SERVER_CONFIG.host}/movie/${SERVER_CONFIG.user}/${SERVER_CONFIG.pass}/${item.stream_id}.${ext}`;
+                    playAction = () => playStream(streamUrl);
+                } else if (currentTab === 'series') {
+                    const sId = item.series_id || item.id;
+                    playAction = () => openSeriesModal(sId, item.name, icon);
+                }
+
+                card.onclick = playAction;
+
+                const badgeText = currentTab === 'live' ? 'مباشر' : currentTab === 'movies' ? 'فيلم' : 'مسلسل';
+
+                card.innerHTML = `
+                    <span class="media-badge">${badgeText}</span>
+                    <div class="card-img-holder">
+                        ${icon ? `<img src="${icon}" loading="lazy" onerror="showFallbackLogo(this)" alt="logo">` : `<div class="no-logo-fallback"><i class="fa-solid fa-tv"></i></div>`}
+                    </div>
+                    <div class="media-info">
+                        <div class="media-title">${title}</div>
+                    </div>
+                `;
+
+                fragment.appendChild(card);
+            });
+
+            grid.appendChild(fragment);
+            loadedCount += nextBatch.length;
+        }
+
+        /* Series Modal Handling */
+        async function openSeriesModal(seriesId, title, cover) {
+            if (!seriesId) return;
+
+            const modal = document.getElementById('seriesModal');
+            document.getElementById('modalTitle').innerText = title || 'تفاصيل المسلسل';
+            document.getElementById('modalPoster').src = cover || '';
+            document.getElementById('modalPlot').innerText = "جاري جلب معلومات وقصة المسلسل...";
+            document.getElementById('seasonsList').innerHTML = `<p style="color: var(--text-dim); font-size: 0.8rem;">جاري التحميل...</p>`;
+            document.getElementById('episodesList').innerHTML = `<div class="loader-container"><div class="spinner"></div></div>`;
+            
+            modal.classList.add('active');
+
+            try {
+                const info = await fetchXtream('get_series_info', `&series_id=${seriesId}`);
+                
+                if (info && info.info) {
+                    document.getElementById('modalPlot').innerText = info.info.plot || info.info.description || "لا تتوفر تفاصيل إضافية لهذا المسلسل.";
+                    if (info.info.cover) document.getElementById('modalPoster').src = info.info.cover;
+                } else {
+                    document.getElementById('modalPlot').innerText = "لا تتوفر تفاصيل إضافية لهذا المسلسل.";
+                }
+
+                const episodesData = (info && info.episodes) ? info.episodes : {};
+                const seasonsList = document.getElementById('seasonsList');
+                seasonsList.innerHTML = '';
+
+                const seasonKeys = Object.keys(episodesData);
+                if (seasonKeys.length === 0) {
+                    document.getElementById('episodesList').innerHTML = `<p style="color: var(--text-dim);">لا تتوفر حلقات حالياً لهذا المسلسل.</p>`;
+                    return;
+                }
+
+                seasonKeys.forEach((sKey, index) => {
+                    const sBtn = document.createElement('div');
+                    sBtn.className = `season-btn ${index === 0 ? 'active' : ''}`;
+                    sBtn.innerHTML = `<i class="fa-solid fa-folder-open"></i> الموسم ${sKey}`;
+                    sBtn.onclick = () => {
+                        document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+                        sBtn.classList.add('active');
+                        renderEpisodes(episodesData[sKey]);
+                    };
+                    seasonsList.appendChild(sBtn);
+                });
+
+                // Render first season episodes by default
+                renderEpisodes(episodesData[seasonKeys[0]]);
+
+            } catch(e) {
+                document.getElementById('modalPlot').innerText = "تعذر تحميل بيانات المسلسل.";
+                document.getElementById('episodesList').innerHTML = `<p style="color: var(--text-dim);">حدث خطأ أثناء تحميل الحلقات.</p>`;
+            }
+        }
+
+        function renderEpisodes(epList) {
+            const epContainer = document.getElementById('episodesList');
+            epContainer.innerHTML = '';
+
+            // تحويل البيانات لمصفوفة إن كانت كائناً (Object)
+            let episodesArray = [];
+            if (Array.isArray(epList)) {
+                episodesArray = epList;
+            } else if (typeof epList === 'object' && epList !== null) {
+                episodesArray = Object.values(epList);
+            }
+
+            if (!episodesArray || episodesArray.length === 0) {
+                epContainer.innerHTML = `<p style="color: var(--text-dim);">لا توجد حلقات في هذا الموسم.</p>`;
+                return;
+            }
+
+            episodesArray.forEach(ep => {
+                const ext = ep.container_extension || 'mp4';
+                const epUrl = `${SERVER_CONFIG.host}/series/${SERVER_CONFIG.user}/${SERVER_CONFIG.pass}/${ep.id}.${ext}`;
+                
+                const epCard = document.createElement('div');
+                epCard.className = 'episode-card';
+                epCard.onclick = () => playStream(epUrl);
+                epCard.innerHTML = `
+                    <i class="fa-solid fa-circle-play"></i>
+                    <div class="episode-info">
+                        <div class="episode-title">الحلقة ${ep.episode_num || ''} - ${ep.title || 'بدون عنوان'}</div>
+                    </div>
+                `;
+                epContainer.appendChild(epCard);
+            });
+        }
+
+        function closeSeriesModal() {
+            document.getElementById('seriesModal').classList.remove('active');
+        }
+
+        /* Stream Player */
         function playStream(url) {
             document.getElementById('playerOverlay').classList.add('active');
             const video = document.getElementById('mainVideo');
@@ -573,14 +920,12 @@
                 hlsEngine = new Hls({ enableWorker: true, lowLatencyMode: true });
                 hlsEngine.loadSource(url);
                 hlsEngine.attachMedia(video);
-                hlsEngine.on(Hls.Events.MANIFEST_PARSED, function() {
+                hlsEngine.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.play().catch(e => console.log(e));
                 });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl') || !url.includes('.m3u8')) {
+            } else {
                 video.src = url;
                 video.play().catch(e => console.log(e));
-            } else {
-                alert("المتصفح لا يدعم تشغيل هذا الامتداد مباشرة.");
             }
         }
 
@@ -595,9 +940,27 @@
             }
         }
 
-        window.onload = () => {
-            loadAllServerData();
-        };
+        function setupScrollListener() {
+            const workspace = document.getElementById('workspace');
+            workspace.addEventListener('scroll', () => {
+                if (workspace.scrollTop + workspace.clientHeight >= workspace.scrollHeight - 300) {
+                    appendNextBatch();
+                }
+            }, { passive: true });
+        }
+
+        function handleSearch() {
+            clearTimeout(searchDebounce);
+            searchDebounce = setTimeout(() => {
+                prepareAndRenderContent();
+            }, 200);
+        }
+
+        function showFallbackLogo(img) {
+            img.parentElement.innerHTML = `<div class="no-logo-fallback"><i class="fa-solid fa-tv"></i></div>`;
+        }
+
+        window.onload = initApp;
     </script>
 </body>
 </html>
